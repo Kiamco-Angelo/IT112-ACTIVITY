@@ -2,12 +2,9 @@ from tkinter import *
 from tkinter import messagebox
 import os
 
-# File name
 FILE_NAME = "inventory.txt"
 
-# ================= FUNCTIONS =================
 
-# Add Product
 def add_product():
     name = entry_name.get()
     unit = entry_unit.get()
@@ -31,7 +28,6 @@ def add_product():
         messagebox.showerror("Error", str(e))
 
 
-# Display Inventory Records
 def display_records():
     listbox.delete(0, END)
 
@@ -47,7 +43,6 @@ def display_records():
         messagebox.showerror("Error", str(e))
 
 
-# Search Product
 def search_product():
     keyword = entry_search.get()
 
@@ -71,7 +66,6 @@ def search_product():
         messagebox.showerror("Error", "No inventory file found")
 
 
-# Update Stock Quantity
 def update_product():
     name = entry_name.get()
     new_quantity = entry_quantity.get()
@@ -107,8 +101,6 @@ def update_product():
     except Exception as e:
         messagebox.showerror("Error", str(e))
 
-
-# Delete Product
 def delete_product():
     name = entry_name.get()
 
@@ -141,8 +133,6 @@ def delete_product():
     except Exception as e:
         messagebox.showerror("Error", str(e))
 
-
-# Clear Entry Fields
 def clear_fields():
     entry_name.delete(0, END)
     entry_unit.delete(0, END)
@@ -150,20 +140,15 @@ def clear_fields():
     entry_price.delete(0, END)
 
 
-# ================= GUI WINDOW =================
 
 root = Tk()
 root.title("Inventory Management System")
 root.geometry("700x500")
 
-# ================= LABELS =================
-
 Label(root, text="Product Name").place(x=30, y=30)
 Label(root, text="Product Unit").place(x=30, y=70)
 Label(root, text="Product Quantity").place(x=30, y=110)
 Label(root, text="Product Price").place(x=30, y=150)
-
-# ================= ENTRIES =================
 
 entry_name = Entry(root, width=30)
 entry_name.place(x=170, y=30)
@@ -177,8 +162,6 @@ entry_quantity.place(x=170, y=110)
 entry_price = Entry(root, width=30)
 entry_price.place(x=170, y=150)
 
-# ================= BUTTONS =================
-
 Button(root, text="Add Product", width=15, command=add_product).place(x=30, y=200)
 
 Button(root, text="Update Quantity", width=15, command=update_product).place(x=170, y=200)
@@ -187,8 +170,6 @@ Button(root, text="Delete Product", width=15, command=delete_product).place(x=32
 
 Button(root, text="Display Records", width=15, command=display_records).place(x=470, y=200)
 
-# ================= SEARCH =================
-
 Label(root, text="Search Product").place(x=30, y=260)
 
 entry_search = Entry(root, width=30)
@@ -196,13 +177,9 @@ entry_search.place(x=170, y=260)
 
 Button(root, text="Search", width=15, command=search_product).place(x=420, y=255)
 
-# ================= LISTBOX =================
-
 listbox = Listbox(root, width=90, height=12)
 listbox.place(x=30, y=320)
 
-# Run display at start
 display_records()
 
-# Run window
 root.mainloop()
