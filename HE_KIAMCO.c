@@ -1,62 +1,208 @@
-#include<stdio.h>
+from tkinter import *
+from tkinter import messagebox
+import os
 
-int main(){
+# File name
+FILE_NAME = "inventory.txt"
 
-    float balance = 500.00;
-    int choice;
-    float amount;
+# ================= FUNCTIONS =================
 
-    do {
+# Add Product
+def add_product():
+    name = entry_name.get()
+    unit = entry_unit.get()
+    quantity = entry_quantity.get()
+    price = entry_price.get()
 
-        printf("TUNG TUNG TUNG SAHUR BANK\n");
-        printf("Please Select your Transaction\n");
-        printf("[1] Balance Inquiry\n");
-        printf("[2] Deposit\n");
-        printf("[3] Withdraw\n");
-        printf("[4] Exit\n");
+    if name == "" or unit == "" or quantity == "" or price == "":
+        messagebox.showerror("Error", "All fields are required!")
+        return
+
+    try:
+        with open(FILE_NAME, "a") as file:
+            file.write(f"{name},{unit},{quantity},{price}\n")
+
+        messagebox.showinfo("Success", "Product added successfully!")
+
+        clear_fields()
+        display_records()
+
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
 
 
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
+# Display Inventory Records
+def display_records():
+    listbox.delete(0, END)
 
-        switch (choice){
+    try:
+        if os.path.exists(FILE_NAME):
+            with open(FILE_NAME, "r") as file:
+                records = file.readlines()
 
-            case 1:
-                printf("\nYour current balance: P%.2f\n", balance);
-                break;
-            case 2:
-                printf("Enter amount to deposit: ");
-                scanf("%f", &amount);
-                balance += amount;
-                printf("\nP%.2f deposit successfully!\n", amount);
-                break;
-            case 3:
-                printf("Enter amount to withdraw: ");
-                scanf("%f", &amount);
+                for record in records:
+                    listbox.insert(END, record.strip())
 
-                if (balance - amount >= 100.00)
-                {
-                    balance -= amount;
-                    printf("\nP%.2f withdrawn successfully!\n", amount);
-                } else {
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
 
-                    printf("\nWithdrawal denied! You must maintain at least P100.00 in your account.");
-                }
-                break;
-                case 4:
-                    printf("Exiting...\n");
-                    break;
-                default:
-                    printf("\nInvalid Choice. Please Try Again.\n");
 
-        }
-        if(choice != 4) {
-            printf("\n");
-        }
-    } while (choice != 4);
+# Search Product
+def search_product():
+    keyword = entry_search.get()
 
-    return 0;   
+    listbox.delete(0, END)
 
-    
-    
-}
+    try:
+        with open(FILE_NAME, "r") as file:
+            records = file.readlines()
+
+            found = False
+
+            for record in records:
+                if keyword.lower() in record.lower():
+                    listbox.insert(END, record.strip())
+                    found = True
+
+            if not found:
+                messagebox.showinfo("Search", "Product not found")
+
+    except FileNotFoundError:
+        messagebox.showerror("Error", "No inventory file found")
+
+
+# Update Stock Quantity
+def update_product():
+    name = entry_name.get()
+    new_quantity = entry_quantity.get()
+
+    updated_records = []
+
+    try:
+        with open(FILE_NAME, "r") as file:
+            records = file.readlines()
+
+        found = False
+
+        for record in records:
+            data = record.strip().split(",")
+
+            if data[0] == name:
+                data[2] = new_quantity
+                found = True
+
+            updated_records.append(",".join(data))
+
+        with open(FILE_NAME, "w") as file:
+            for item in updated_records:
+                file.write(item + "\n")
+
+        if found:
+            messagebox.showinfo("Success", "Stock updated successfully")
+        else:
+            messagebox.showerror("Error", "Product not found")
+
+        display_records()
+
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
+
+
+# Delete Product
+def delete_product():
+    name = entry_name.get()
+
+    updated_records = []
+
+    try:
+        with open(FILE_NAME, "r") as file:
+            records = file.readlines()
+
+        found = False
+
+        for record in records:
+            data = record.strip().split(",")
+
+            if data[0] != name:
+                updated_records.append(record)
+            else:
+                found = True
+
+        with open(FILE_NAME, "w") as file:
+            file.writelines(updated_records)
+
+        if found:
+            messagebox.showinfo("Success", "Product deleted successfully")
+        else:
+            messagebox.showerror("Error", "Product not found")
+
+        display_records()
+
+    except Exception as e:
+        messagebox.showerror("Error", str(e))
+
+
+# Clear Entry Fields
+def clear_fields():
+    entry_name.delete(0, END)
+    entry_unit.delete(0, END)
+    entry_quantity.delete(0, END)
+    entry_price.delete(0, END)
+
+
+# ================= GUI WINDOW =================
+
+root = Tk()
+root.title("Inventory Management System")
+root.geometry("700x500")
+
+# ================= LABELS =================
+
+Label(root, text="Product Name").place(x=30, y=30)
+Label(root, text="Product Unit").place(x=30, y=70)
+Label(root, text="Product Quantity").place(x=30, y=110)
+Label(root, text="Product Price").place(x=30, y=150)
+
+# ================= ENTRIES =================
+
+entry_name = Entry(root, width=30)
+entry_name.place(x=170, y=30)
+
+entry_unit = Entry(root, width=30)
+entry_unit.place(x=170, y=70)
+
+entry_quantity = Entry(root, width=30)
+entry_quantity.place(x=170, y=110)
+
+entry_price = Entry(root, width=30)
+entry_price.place(x=170, y=150)
+
+# ================= BUTTONS =================
+
+Button(root, text="Add Product", width=15, command=add_product).place(x=30, y=200)
+
+Button(root, text="Update Quantity", width=15, command=update_product).place(x=170, y=200)
+
+Button(root, text="Delete Product", width=15, command=delete_product).place(x=320, y=200)
+
+Button(root, text="Display Records", width=15, command=display_records).place(x=470, y=200)
+
+# ================= SEARCH =================
+
+Label(root, text="Search Product").place(x=30, y=260)
+
+entry_search = Entry(root, width=30)
+entry_search.place(x=170, y=260)
+
+Button(root, text="Search", width=15, command=search_product).place(x=420, y=255)
+
+# ================= LISTBOX =================
+
+listbox = Listbox(root, width=90, height=12)
+listbox.place(x=30, y=320)
+
+# Run display at start
+display_records()
+
+# Run window
+root.mainloop()
